@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ping Pong</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <div id="app">
+      <div class="stage">
+        <canvas id="game"></canvas>
+        <div class="hud">
+          <div id="score">Score: 0</div>
+          <div id="score-pop" class="score-pop hidden">+1</div>
+        </div>
+        <div id="start-banner" class="start-banner hidden">
+          <span class="start-banner-title">Game On!</span>
+          <span class="start-banner-sub">Abhi maza aayega</span>
+        </div>
+        <div id="overlay" class="overlay">
+          <h1 id="overlay-title">Ping Pong</h1>
+          <p id="overlay-message">
+            Move the paddle with the configured keys. Miss a ball and the paddle
+            shrinks. Extra balls appear over time.
+          </p>
+          <button id="action-btn" type="button">Start</button>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
