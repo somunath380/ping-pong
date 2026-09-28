@@ -100,6 +100,18 @@ export class Game {
     this.pressed.delete(event.key);
   }
 
+  setMoving(direction, isPressed) {
+    if (!this.running) {
+      return;
+    }
+    const key = direction === "left" ? this.config.keyLeft : this.config.keyRight;
+    if (isPressed) {
+      this.pressed.add(key);
+    } else {
+      this.pressed.delete(key);
+    }
+  }
+
   loop() {
     if (!this.running) {
       return;

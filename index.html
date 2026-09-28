@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>Ping Pong</title>
     <link rel="stylesheet" href="/src/style.css" />
   </head>
@@ -21,12 +21,28 @@
         <div id="overlay" class="overlay">
           <h1 id="overlay-title">Ping Pong</h1>
           <p id="overlay-message">
-            Move the paddle with the configured keys. Miss a ball and the paddle
-            shrinks. Extra balls appear over time.
+            Move the paddle with the arrow keys or the on-screen buttons. Miss a
+            ball and the paddle shrinks. Extra balls appear over time.
           </p>
           <button id="action-btn" type="button">Start</button>
         </div>
       </div>
+      <button
+        id="btn-left"
+        class="control-btn control-left"
+        type="button"
+        aria-label="Move paddle left"
+      >
+        &#9664;
+      </button>
+      <button
+        id="btn-right"
+        class="control-btn control-right"
+        type="button"
+        aria-label="Move paddle right"
+      >
+        &#9654;
+      </button>
     </div>
     <script type="module" src="/src/main.js"></script>
   </body>

@@ -1,6 +1,7 @@
 :root {
   color-scheme: dark;
   font-family: "Segoe UI", system-ui, sans-serif;
+  --game-ratio: 1.3333;
 }
 
 * {
@@ -13,43 +14,122 @@ body {
   min-height: 100%;
   background: #0b1020;
   color: #e8eefc;
+  overscroll-behavior: none;
 }
 
 #app {
-  min-height: 100vh;
+  --pad: 24px;
+  --gap: 16px;
+  --stage-w: min(1200px, 100vw - 2 * var(--pad), (100dvh - 2 * var(--pad)) * var(--game-ratio));
+  min-height: 100dvh;
   display: grid;
-  place-items: center;
-  padding: 24px;
+  grid-template-areas: "stage";
+  grid-template-columns: var(--stage-w);
+  place-content: center;
+  align-items: center;
+  gap: var(--gap);
+  padding: var(--pad);
 }
 
 .stage {
+  grid-area: stage;
   position: relative;
-  display: inline-block;
+  width: var(--stage-w);
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
   border: 1px solid #243154;
+  container-type: inline-size;
 }
 
 canvas {
   display: block;
+  width: 100%;
+  height: auto;
   background: #11182c;
 }
 
 .hud {
   position: absolute;
-  top: 16px;
-  left: 20px;
-  right: 20px;
+  top: clamp(8px, 2cqi, 16px);
+  left: clamp(10px, 2.5cqi, 20px);
+  right: clamp(10px, 2.5cqi, 20px);
   display: flex;
   align-items: center;
   justify-content: space-between;
   pointer-events: none;
   z-index: 1;
   font-weight: 700;
-  font-size: 1.2rem;
+  font-size: clamp(0.85rem, 2.6cqi, 1.3rem);
   letter-spacing: 0.04em;
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
+}
+
+.control-btn {
+  display: none;
+}
+
+@media (pointer: coarse) {
+  #app {
+    --pad: 16px;
+    --btn-h: 88px;
+    --stage-w: min(
+      100vw - 2 * var(--pad),
+      (100dvh - 2 * var(--pad) - var(--gap) - var(--btn-h)) * var(--game-ratio)
+    );
+    grid-template-areas:
+      "stage stage"
+      "left right";
+    grid-template-columns: repeat(2, calc((var(--stage-w) - var(--gap)) / 2));
+    padding: max(var(--pad), env(safe-area-inset-top)) max(var(--pad), env(safe-area-inset-right))
+      max(var(--pad), env(safe-area-inset-bottom)) max(var(--pad), env(safe-area-inset-left));
+  }
+
+  .control-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: var(--btn-h);
+    border: 1px solid #2c3b66;
+    border-radius: 16px;
+    background: #1a2440;
+    color: #7cf0c3;
+    font-size: 2rem;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .control-btn.active {
+    background: #7cf0c3;
+    color: #0b1020;
+  }
+
+  .control-left {
+    grid-area: left;
+  }
+
+  .control-right {
+    grid-area: right;
+  }
+}
+
+@media (pointer: coarse) and (orientation: landscape) {
+  #app {
+    --btn-w: clamp(72px, 12vw, 120px);
+    --stage-w: min(
+      100vw - 2 * var(--pad) - 2 * var(--gap) - 2 * var(--btn-w),
+      (100dvh - 2 * var(--pad)) * var(--game-ratio)
+    );
+    grid-template-areas: "left stage right";
+    grid-template-columns: var(--btn-w) var(--stage-w) var(--btn-w);
+  }
+
+  .control-btn {
+    height: min(60dvh, 220px);
+  }
 }
 
 .start-banner {
@@ -70,7 +150,7 @@ canvas {
 }
 
 .start-banner-title {
-  font-size: 3.4rem;
+  font-size: clamp(1.8rem, 8cqi, 3.6rem);
   font-weight: 800;
   letter-spacing: 0.06em;
   color: #7cf0c3;
@@ -78,7 +158,7 @@ canvas {
 }
 
 .start-banner-sub {
-  font-size: 1.2rem;
+  font-size: clamp(0.8rem, 2.8cqi, 1.3rem);
   color: #f0c37c;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -107,7 +187,7 @@ canvas {
 
 .score-pop {
   color: #7cf0c3;
-  font-size: 1.5rem;
+  font-size: clamp(1rem, 3.2cqi, 1.6rem);
   animation: score-pop 1.1s ease-out;
 }
 
@@ -137,11 +217,12 @@ canvas {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 16px;
-  padding: 32px;
+  gap: clamp(8px, 2.5cqi, 16px);
+  padding: clamp(12px, 4cqi, 32px);
   text-align: center;
   background: rgba(8, 12, 24, 0.82);
   backdrop-filter: blur(4px);
+  z-index: 3;
 }
 
 .overlay.hidden {
@@ -150,22 +231,23 @@ canvas {
 
 .overlay h1 {
   margin: 0;
-  font-size: 2.2rem;
+  font-size: clamp(1.3rem, 5cqi, 2.4rem);
   letter-spacing: 0.04em;
 }
 
 .overlay p {
   margin: 0;
   max-width: 420px;
-  line-height: 1.5;
+  line-height: 1.4;
+  font-size: clamp(0.75rem, 2.2cqi, 1rem);
   color: #c5d0ea;
 }
 
 .overlay button {
   border: 0;
   border-radius: 999px;
-  padding: 12px 28px;
-  font-size: 1rem;
+  padding: clamp(8px, 1.8cqi, 12px) clamp(18px, 4cqi, 28px);
+  font-size: clamp(0.85rem, 2.2cqi, 1rem);
   font-weight: 600;
   color: #0b1020;
   background: #7cf0c3;

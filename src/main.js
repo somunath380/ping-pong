@@ -27,8 +27,34 @@ const game = new Game(document.querySelector("#game"), config, {
   },
 });
 
+document.documentElement.style.setProperty(
+  "--game-ratio",
+  String(config.canvasWidth / config.canvasHeight),
+);
+
 game.showIdle();
 scoreEl.textContent = "Score: 0";
+
+function bindControlButton(button, direction) {
+  const release = () => {
+    button.classList.remove("active");
+    game.setMoving(direction, false);
+  };
+
+  button.addEventListener("pointerdown", (event) => {
+    event.preventDefault();
+    button.setPointerCapture(event.pointerId);
+    button.classList.add("active");
+    game.setMoving(direction, true);
+  });
+  button.addEventListener("pointerup", release);
+  button.addEventListener("pointercancel", release);
+  button.addEventListener("lostpointercapture", release);
+  button.addEventListener("contextmenu", (event) => event.preventDefault());
+}
+
+bindControlButton(document.querySelector("#btn-left"), "left");
+bindControlButton(document.querySelector("#btn-right"), "right");
 
 function showOverlay(title, message, buttonLabel) {
   overlayTitle.textContent = title;
