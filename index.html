@@ -2,31 +2,201 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+
     <title>Ping Pong</title>
-    <link rel="stylesheet" href="/src/style.css" />
+
+    <link
+      rel="stylesheet"
+      href="/src/style.css"
+    />
   </head>
+
   <body>
     <div id="app">
       <div class="stage">
         <canvas id="game"></canvas>
+
         <div class="hud">
-          <div id="score">Score: 0</div>
-          <div id="score-pop" class="score-pop hidden">+1</div>
+          <div class="hud-left">
+            <div id="score">
+              Score: 0
+            </div>
+
+            <div id="best" class="best">
+              Best: -
+            </div>
+          </div>
+
+          <div class="hud-right">
+            <div id="level-info" class="level-info">
+              <div id="level">
+                Level: 1
+              </div>
+
+              <div id="timer">
+                Rows left: 1
+              </div>
+            </div>
+
+            <button
+              id="pause-btn"
+              class="pause-btn hidden"
+              type="button"
+              aria-label="Pause game"
+            >
+              &#10074;&#10074;
+            </button>
+          </div>
+
+          <div
+            id="score-pop"
+            class="score-pop hidden"
+          >
+            +1
+          </div>
         </div>
-        <div id="start-banner" class="start-banner hidden">
-          <span class="start-banner-title">Game On!</span>
-          <span class="start-banner-sub">Abhi maza aayega</span>
+
+        <div
+          id="start-banner"
+          class="start-banner hidden"
+        >
+          <span class="start-banner-title">
+            Game On!
+          </span>
+
+          <span class="start-banner-sub">
+            Abhi maza aayega
+          </span>
         </div>
-        <div id="overlay" class="overlay">
-          <h1 id="overlay-title">Ping Pong</h1>
-          <p id="overlay-message">
-            Move the paddle with the arrow keys or the on-screen buttons. Miss a
-            ball and the paddle shrinks. Extra balls appear over time.
-          </p>
-          <button id="action-btn" type="button">Start</button>
+
+        <div
+          id="pause-screen"
+          class="overlay hidden"
+        >
+          <section class="view">
+            <h1>Paused</h1>
+
+            <p id="pause-hint"></p>
+
+            <div class="control-setting"></div>
+
+            <div class="overlay-actions">
+              <button
+                id="resume-btn"
+                type="button"
+              >
+                Resume
+              </button>
+
+              <button
+                id="pause-change-mode-btn"
+                class="secondary"
+                type="button"
+              >
+                Change game
+              </button>
+            </div>
+          </section>
+        </div>
+
+        <div
+          id="overlay"
+          class="overlay"
+        >
+          <section id="view-select" class="view">
+            <h1>Choose your game</h1>
+
+            <div class="mode-list">
+              <button
+                class="mode-card"
+                type="button"
+                data-mode="classic"
+              >
+                <span class="mode-name">Classic</span>
+                <span class="mode-desc">
+                  Keep every ball bouncing. More balls join over time.
+                </span>
+                <span class="mode-best" data-best-for="classic">
+                  Loading best score...
+                </span>
+              </button>
+
+              <button
+                class="mode-card"
+                type="button"
+                data-mode="blockBreaker"
+              >
+                <span class="mode-name">Block Breaker</span>
+                <span class="mode-desc">
+                  Smash falling blocks before they reach your paddle.
+                </span>
+                <span class="mode-best" data-best-for="blockBreaker">
+                  Loading best score...
+                </span>
+              </button>
+            </div>
+
+            <div class="control-setting"></div>
+          </section>
+
+          <section id="view-mode" class="view hidden">
+            <h1 id="overlay-title">
+              Ping Pong
+            </h1>
+
+            <p id="overlay-message"></p>
+
+            <p id="overlay-best" class="best-line"></p>
+
+            <form id="name-form" class="name-form hidden">
+              <label for="player-name">
+                New high score! Enter your name
+              </label>
+
+              <div class="name-row">
+                <input
+                  id="player-name"
+                  name="player-name"
+                  type="text"
+                  maxlength="20"
+                  autocomplete="nickname"
+                  placeholder="Your name"
+                  required
+                />
+
+                <button id="save-name-btn" type="submit">
+                  Save
+                </button>
+              </div>
+            </form>
+
+            <p id="name-status" class="name-status hidden"></p>
+
+            <div class="overlay-actions">
+              <button
+                id="action-btn"
+                type="button"
+              >
+                Start
+              </button>
+
+              <button
+                id="change-mode-btn"
+                class="secondary"
+                type="button"
+              >
+                Change game
+              </button>
+            </div>
+          </section>
         </div>
       </div>
+
       <button
         id="btn-left"
         class="control-btn control-left"
@@ -35,6 +205,7 @@
       >
         &#9664;
       </button>
+
       <button
         id="btn-right"
         class="control-btn control-right"
@@ -44,6 +215,10 @@
         &#9654;
       </button>
     </div>
-    <script type="module" src="/src/main.js"></script>
+
+    <script
+      type="module"
+      src="/src/main.js"
+    ></script>
   </body>
 </html>

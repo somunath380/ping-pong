@@ -4,6 +4,8 @@ import newBallUrl from "../sounds/kyu-re-madarchod-cid.mp3?url";
 import gameOverUrl from "../sounds/khatam.mp3?url";
 import gameStartUrl from "../sounds/abhi-maza-ayagga.mp3?url";
 import scoreUrl from "../sounds/ab-tu-gaya-beta-ab-dekh-tu-puneet.mp3?url";
+import blockHitUrl from "../sounds/anime-ahh.mp3?url";
+import rowClearedUrl from "../sounds/acha-ji-aisa-hai-kya.mp3?url";
 
 const CLIP_MAX_MS = 4000;
 
@@ -54,5 +56,11 @@ export const sounds = {
   },
   score() {
     playScore();
+  },
+  blockHit() {
+    play(blockHitUrl);
+  },
+  rowCleared() {
+    play(rowClearedUrl);
   },
 };

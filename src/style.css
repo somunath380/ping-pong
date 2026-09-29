@@ -1,6 +1,11 @@
 :root {
   color-scheme: dark;
-  font-family: "Segoe UI", system-ui, sans-serif;
+
+  font-family:
+    "Segoe UI",
+    system-ui,
+    sans-serif;
+
   --game-ratio: 1.3333;
 }
 
@@ -8,62 +13,218 @@
   box-sizing: border-box;
 }
 
+.hidden {
+  display: none !important;
+}
+
 html,
 body {
   margin: 0;
+
   min-height: 100%;
+
   background: #0b1020;
+
   color: #e8eefc;
+
   overscroll-behavior: none;
 }
 
 #app {
   --pad: 24px;
   --gap: 16px;
-  --stage-w: min(1200px, 100vw - 2 * var(--pad), (100dvh - 2 * var(--pad)) * var(--game-ratio));
+
+  --stage-w: min(
+    1200px,
+    calc(100vw - 2 * var(--pad)),
+    calc(
+      (100dvh - 2 * var(--pad))
+      * var(--game-ratio)
+    )
+  );
+
   min-height: 100dvh;
+
   display: grid;
-  grid-template-areas: "stage";
-  grid-template-columns: var(--stage-w);
+
+  grid-template-areas:
+    "stage";
+
+  grid-template-columns:
+    var(--stage-w);
+
   place-content: center;
+
   align-items: center;
+
   gap: var(--gap);
+
   padding: var(--pad);
 }
 
 .stage {
   grid-area: stage;
+
   position: relative;
+
   width: var(--stage-w);
+
   border-radius: 12px;
+
   overflow: hidden;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
-  border: 1px solid #243154;
+
+  box-shadow:
+    0 20px 50px
+    rgba(0, 0, 0, 0.45);
+
+  border:
+    1px solid #243154;
+
   container-type: inline-size;
 }
 
 canvas {
   display: block;
+
   width: 100%;
+
   height: auto;
+
   background: #11182c;
 }
 
+/* -----------------------------
+   HUD
+----------------------------- */
+
 .hud {
   position: absolute;
-  top: clamp(8px, 2cqi, 16px);
-  left: clamp(10px, 2.5cqi, 20px);
-  right: clamp(10px, 2.5cqi, 20px);
+
+  top: clamp(
+    8px,
+    2cqi,
+    16px
+  );
+
+  left: clamp(
+    10px,
+    2.5cqi,
+    20px
+  );
+
+  right: clamp(
+    10px,
+    2.5cqi,
+    20px
+  );
+
   display: flex;
-  align-items: center;
+
+  align-items: flex-start;
+
   justify-content: space-between;
+
   pointer-events: none;
+
   z-index: 1;
+
   font-weight: 700;
-  font-size: clamp(0.85rem, 2.6cqi, 1.3rem);
+
+  font-size: clamp(
+    0.85rem,
+    2.6cqi,
+    1.3rem
+  );
+
   letter-spacing: 0.04em;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
+
+  text-shadow:
+    0 2px 8px
+    rgba(0, 0, 0, 0.45);
 }
+
+.hud-left {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 4px;
+}
+
+.hud-right {
+  display: flex;
+
+  align-items: flex-start;
+
+  gap: clamp(8px, 2cqi, 16px);
+}
+
+.pause-btn {
+  pointer-events: auto;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  width: clamp(32px, 6cqi, 44px);
+
+  height: clamp(32px, 6cqi, 44px);
+
+  padding: 0;
+
+  border: 1px solid #2c3b66;
+
+  border-radius: 10px;
+
+  background: rgba(26, 36, 64, 0.85);
+
+  color: #e6ecff;
+
+  font-size: 0.8em;
+
+  letter-spacing: -0.1em;
+
+  cursor: pointer;
+
+  touch-action: manipulation;
+}
+
+.pause-btn:hover,
+.pause-btn:focus-visible {
+  background: #24315a;
+
+  outline: none;
+}
+
+.best {
+  color: #f0c37c;
+
+  font-size: 0.7em;
+
+  font-weight: 600;
+}
+
+.level-info {
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  gap: 4px;
+}
+
+#timer {
+  color: #f0c37c;
+
+  font-size: 0.8em;
+}
+
+/* -----------------------------
+   Mobile controls
+----------------------------- */
 
 .control-btn {
   display: none;
@@ -72,38 +233,93 @@ canvas {
 @media (pointer: coarse) {
   #app {
     --pad: 16px;
+
     --btn-h: 88px;
+
     --stage-w: min(
-      100vw - 2 * var(--pad),
-      (100dvh - 2 * var(--pad) - var(--gap) - var(--btn-h)) * var(--game-ratio)
+      calc(
+        100vw - 2 * var(--pad)
+      ),
+      calc(
+        (
+          100dvh
+          - 2 * var(--pad)
+          - var(--gap)
+          - var(--btn-h)
+        )
+        * var(--game-ratio)
+      )
     );
+
     grid-template-areas:
       "stage stage"
       "left right";
-    grid-template-columns: repeat(2, calc((var(--stage-w) - var(--gap)) / 2));
-    padding: max(var(--pad), env(safe-area-inset-top)) max(var(--pad), env(safe-area-inset-right))
-      max(var(--pad), env(safe-area-inset-bottom)) max(var(--pad), env(safe-area-inset-left));
+
+    grid-template-columns:
+      repeat(
+        2,
+        calc(
+          (
+            var(--stage-w) -
+            var(--gap)
+          ) / 2
+        )
+      );
+
+    padding:
+      max(
+        var(--pad),
+        env(safe-area-inset-top)
+      )
+      max(
+        var(--pad),
+        env(safe-area-inset-right)
+      )
+      max(
+        var(--pad),
+        env(safe-area-inset-bottom)
+      )
+      max(
+        var(--pad),
+        env(safe-area-inset-left)
+      );
   }
 
   .control-btn {
     display: flex;
+
     align-items: center;
+
     justify-content: center;
+
     height: var(--btn-h);
-    border: 1px solid #2c3b66;
+
+    border:
+      1px solid #2c3b66;
+
     border-radius: 16px;
+
     background: #1a2440;
+
     color: #7cf0c3;
+
     font-size: 2rem;
+
     touch-action: none;
+
     user-select: none;
+
     -webkit-user-select: none;
+
     -webkit-touch-callout: none;
-    -webkit-tap-highlight-color: transparent;
+
+    -webkit-tap-highlight-color:
+      transparent;
   }
 
   .control-btn.active {
     background: #7cf0c3;
+
     color: #0b1020;
   }
 
@@ -116,33 +332,182 @@ canvas {
   }
 }
 
-@media (pointer: coarse) and (orientation: landscape) {
+@media (
+  pointer: coarse
+) and (
+  orientation: landscape
+) {
   #app {
-    --btn-w: clamp(72px, 12vw, 120px);
-    --stage-w: min(
-      100vw - 2 * var(--pad) - 2 * var(--gap) - 2 * var(--btn-w),
-      (100dvh - 2 * var(--pad)) * var(--game-ratio)
+    --btn-w: clamp(
+      72px,
+      12vw,
+      120px
     );
-    grid-template-areas: "left stage right";
-    grid-template-columns: var(--btn-w) var(--stage-w) var(--btn-w);
+
+    --stage-w: min(
+      calc(
+        100vw -
+        2 * var(--pad) -
+        2 * var(--gap) -
+        2 * var(--btn-w)
+      ),
+      calc(
+        (
+          100dvh -
+          2 * var(--pad)
+        )
+        * var(--game-ratio)
+      )
+    );
+
+    grid-template-areas:
+      "left stage right";
+
+    grid-template-columns:
+      var(--btn-w)
+      var(--stage-w)
+      var(--btn-w);
   }
 
   .control-btn {
-    height: min(60dvh, 220px);
+    height: min(
+      60dvh,
+      220px
+    );
   }
 }
 
+/* Touch & drag: no arrow buttons, so the game gets the whole screen. */
+@media (pointer: coarse) {
+  #app[data-control="drag"] {
+    --stage-w: min(
+      calc(
+        100vw - 2 * var(--pad)
+      ),
+      calc(
+        (
+          100dvh -
+          2 * var(--pad)
+        )
+        * var(--game-ratio)
+      )
+    );
+
+    grid-template-areas:
+      "stage";
+
+    grid-template-columns:
+      var(--stage-w);
+  }
+
+  #app[data-control="drag"] .control-btn {
+    display: none;
+  }
+}
+
+#app[data-control="drag"] .stage {
+  touch-action: none;
+}
+
+#app[data-control="mouse"] canvas {
+  cursor: none;
+}
+
+/* -----------------------------
+   Control settings
+----------------------------- */
+
+.control-setting {
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  gap: 6px;
+}
+
+.control-label {
+  font-size: clamp(0.7rem, 1.8cqi, 0.85rem);
+
+  font-weight: 600;
+
+  letter-spacing: 0.08em;
+
+  text-transform: uppercase;
+
+  color: #8b97b8;
+}
+
+.control-options {
+  display: inline-flex;
+
+  gap: 4px;
+
+  padding: 4px;
+
+  border: 1px solid #2c3b66;
+
+  border-radius: 999px;
+
+  background: #121a30;
+}
+
+.overlay button.control-option {
+  padding:
+    clamp(6px, 1.4cqi, 9px)
+    clamp(14px, 3cqi, 22px);
+
+  background: transparent;
+
+  color: #c5d0ea;
+}
+
+.overlay button.control-option:hover,
+.overlay button.control-option:focus-visible {
+  background: #1a2440;
+}
+
+.overlay button.control-option[aria-pressed="true"] {
+  background: #7cf0c3;
+
+  color: #0b1020;
+}
+
+.control-hint {
+  font-size: clamp(0.7rem, 1.8cqi, 0.85rem);
+
+  color: #8b97b8;
+}
+
+/* -----------------------------
+   Start banner
+----------------------------- */
+
 .start-banner {
   position: absolute;
+
   inset: 0;
+
   display: flex;
+
   flex-direction: column;
+
   align-items: center;
+
   justify-content: center;
+
   gap: 8px;
+
   pointer-events: none;
+
   z-index: 2;
-  animation: start-banner 1.8s ease-out forwards;
+
+  animation:
+    start-banner
+    1.8s
+    ease-out
+    forwards;
 }
 
 .start-banner.hidden {
@@ -150,45 +515,101 @@ canvas {
 }
 
 .start-banner-title {
-  font-size: clamp(1.8rem, 8cqi, 3.6rem);
+  font-size: clamp(
+    1.8rem,
+    8cqi,
+    3.6rem
+  );
+
   font-weight: 800;
+
   letter-spacing: 0.06em;
+
   color: #7cf0c3;
-  text-shadow: 0 0 24px rgba(124, 240, 195, 0.6);
+
+  text-shadow:
+    0 0 24px
+    rgba(
+      124,
+      240,
+      195,
+      0.6
+    );
 }
 
 .start-banner-sub {
-  font-size: clamp(0.8rem, 2.8cqi, 1.3rem);
+  font-size: clamp(
+    0.8rem,
+    2.8cqi,
+    1.3rem
+  );
+
   color: #f0c37c;
+
   letter-spacing: 0.08em;
+
   text-transform: uppercase;
 }
 
 @keyframes start-banner {
   0% {
-    transform: scale(0.4) rotate(-6deg);
+    transform:
+      scale(0.4)
+      rotate(-6deg);
+
     opacity: 0;
   }
+
   20% {
-    transform: scale(1.15) rotate(2deg);
+    transform:
+      scale(1.15)
+      rotate(2deg);
+
     opacity: 1;
   }
+
   35% {
-    transform: scale(1) rotate(0);
+    transform:
+      scale(1)
+      rotate(0);
   }
+
   75% {
     opacity: 1;
   }
+
   100% {
-    transform: scale(1.4);
+    transform:
+      scale(1.4);
+
     opacity: 0;
   }
 }
 
+/* -----------------------------
+   Score popup
+----------------------------- */
+
 .score-pop {
+  position: absolute;
+
+  left: 50%;
+
+  transform:
+    translateX(-50%);
+
   color: #7cf0c3;
-  font-size: clamp(1rem, 3.2cqi, 1.6rem);
-  animation: score-pop 1.1s ease-out;
+
+  font-size: clamp(
+    1rem,
+    3.2cqi,
+    1.6rem
+  );
+
+  animation:
+    score-pop
+    1.1s
+    ease-out;
 }
 
 .score-pop.hidden {
@@ -197,31 +618,81 @@ canvas {
 
 @keyframes score-pop {
   0% {
-    transform: translateY(10px) scale(0.8);
+    transform:
+      translate(
+        -50%,
+        10px
+      )
+      scale(0.8);
+
     opacity: 0;
   }
+
   18% {
-    transform: translateY(0) scale(1.08);
+    transform:
+      translate(
+        -50%,
+        0
+      )
+      scale(1.08);
+
     opacity: 1;
   }
+
   100% {
-    transform: translateY(-18px) scale(1);
+    transform:
+      translate(
+        -50%,
+        -18px
+      )
+      scale(1);
+
     opacity: 0;
   }
 }
 
+/* -----------------------------
+   Overlay
+----------------------------- */
+
 .overlay {
   position: absolute;
+
   inset: 0;
+
   display: flex;
+
   flex-direction: column;
+
   align-items: center;
+
   justify-content: center;
-  gap: clamp(8px, 2.5cqi, 16px);
-  padding: clamp(12px, 4cqi, 32px);
+
+  gap: clamp(
+    8px,
+    2.5cqi,
+    16px
+  );
+
+  padding: clamp(
+    12px,
+    4cqi,
+    32px
+  );
+
   text-align: center;
-  background: rgba(8, 12, 24, 0.82);
-  backdrop-filter: blur(4px);
+
+  background:
+    rgba(
+      8,
+      12,
+      24,
+      0.82
+    );
+
+  backdrop-filter:
+    blur(4px);
+
   z-index: 3;
 }
 
@@ -231,31 +702,241 @@ canvas {
 
 .overlay h1 {
   margin: 0;
-  font-size: clamp(1.3rem, 5cqi, 2.4rem);
+
+  font-size: clamp(
+    1.3rem,
+    5cqi,
+    2.4rem
+  );
+
   letter-spacing: 0.04em;
 }
 
 .overlay p {
   margin: 0;
+
   max-width: 420px;
+
   line-height: 1.4;
-  font-size: clamp(0.75rem, 2.2cqi, 1rem);
+
+  font-size: clamp(
+    0.75rem,
+    2.2cqi,
+    1rem
+  );
+
   color: #c5d0ea;
 }
 
 .overlay button {
   border: 0;
+
   border-radius: 999px;
-  padding: clamp(8px, 1.8cqi, 12px) clamp(18px, 4cqi, 28px);
-  font-size: clamp(0.85rem, 2.2cqi, 1rem);
+
+  padding:
+    clamp(
+      8px,
+      1.8cqi,
+      12px
+    )
+    clamp(
+      18px,
+      4cqi,
+      28px
+    );
+
+  font-size: clamp(
+    0.85rem,
+    2.2cqi,
+    1rem
+  );
+
   font-weight: 600;
+
   color: #0b1020;
+
   background: #7cf0c3;
+
   cursor: pointer;
 }
 
 .overlay button:hover,
 .overlay button:focus-visible {
   background: #9af7d4;
+
   outline: none;
+}
+
+.overlay button.secondary {
+  background: transparent;
+
+  color: #c5d0ea;
+
+  border: 1px solid #2c3b66;
+}
+
+.overlay button.secondary:hover,
+.overlay button.secondary:focus-visible {
+  background: #1a2440;
+}
+
+.view {
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  gap: clamp(8px, 2.5cqi, 16px);
+
+  width: 100%;
+}
+
+.overlay-actions {
+  display: flex;
+
+  flex-wrap: wrap;
+
+  justify-content: center;
+
+  gap: 10px;
+}
+
+.best-line {
+  color: #f0c37c !important;
+
+  font-weight: 600;
+}
+
+/* -----------------------------
+   Mode select
+----------------------------- */
+
+.mode-list {
+  display: grid;
+
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  gap: clamp(8px, 2.5cqi, 20px);
+
+  width: min(100%, 640px);
+}
+
+.overlay .mode-card {
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: flex-start;
+
+  gap: clamp(4px, 1cqi, 8px);
+
+  padding: clamp(10px, 2.5cqi, 20px);
+
+  border: 1px solid #2c3b66;
+
+  border-radius: 14px;
+
+  background: #141d36;
+
+  color: #e8eefc;
+
+  text-align: left;
+
+  transition:
+    border-color 0.15s,
+    transform 0.15s;
+}
+
+.overlay .mode-card:hover,
+.overlay .mode-card:focus-visible {
+  background: #1a2440;
+
+  border-color: #7cf0c3;
+
+  transform: translateY(-2px);
+}
+
+.mode-name {
+  font-size: clamp(1rem, 3.2cqi, 1.4rem);
+
+  font-weight: 800;
+
+  color: #7cf0c3;
+}
+
+.mode-desc {
+  font-size: clamp(0.7rem, 1.9cqi, 0.9rem);
+
+  font-weight: 400;
+
+  line-height: 1.35;
+
+  color: #c5d0ea;
+}
+
+.mode-best {
+  font-size: clamp(0.7rem, 1.9cqi, 0.9rem);
+
+  color: #f0c37c;
+}
+
+/* -----------------------------
+   High score name entry
+----------------------------- */
+
+.name-form {
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  gap: 8px;
+
+  color: #7cf0c3;
+
+  font-weight: 700;
+
+  font-size: clamp(0.8rem, 2.2cqi, 1rem);
+}
+
+.name-row {
+  display: flex;
+
+  gap: 8px;
+}
+
+.name-row input {
+  width: clamp(140px, 30cqi, 240px);
+
+  padding: 8px 14px;
+
+  border: 1px solid #2c3b66;
+
+  border-radius: 999px;
+
+  background: #0b1020;
+
+  color: #e8eefc;
+
+  font: inherit;
+
+  font-weight: 500;
+}
+
+.name-row input:focus {
+  outline: none;
+
+  border-color: #7cf0c3;
+}
+
+.name-status {
+  color: #c5d0ea;
+}
+
+@container (max-width: 480px) {
+  .mode-desc {
+    display: none;
+  }
 }

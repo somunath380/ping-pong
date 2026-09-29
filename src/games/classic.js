@@ -1,4 +1,4 @@
-import { sounds } from "./audio.js";
+import { sounds } from "../audio.js";
 
 const PADDLE_BOTTOM_GAP = 18;
 const BALL_COLORS = ["#7cf0c3", "#7cc4ff", "#f0c37c"];
@@ -12,7 +12,7 @@ function randomDirection(speed) {
   };
 }
 
-export class Game {
+export class ClassicGame {
   constructor(canvas, config, { onGameOver, onScore } = {}) {
     this.canvas = canvas;
     this.ctx = canvas.getContext("2d");
@@ -21,6 +21,8 @@ export class Game {
     this.onScore = onScore;
     this.pressed = new Set();
     this.running = false;
+    this.paused = false;
+    this.pausedAt = 0;
     this.frameId = null;
     this.score = 0;
     this.handleKeyDown = this.handleKeyDown.bind(this);
@@ -38,6 +40,7 @@ export class Game {
       y: this.config.canvasHeight - this.config.paddleHeight - PADDLE_BOTTOM_GAP,
     };
     this.balls = [movingBall ? this.createBall() : this.createIdleBall()];
+    this.targetX = null;
   }
 
   showIdle() {
@@ -60,8 +63,35 @@ export class Game {
     this.frameId = requestAnimationFrame(this.loop);
   }
 
+  pause() {
+    if (!this.running || this.paused) {
+      return;
+    }
+    this.paused = true;
+    this.pausedAt = performance.now();
+    this.pressed.clear();
+    if (this.frameId !== null) {
+      cancelAnimationFrame(this.frameId);
+      this.frameId = null;
+    }
+  }
+
+  resume() {
+    if (!this.running || !this.paused) {
+      return;
+    }
+    // Shift timers so time spent paused doesn't count toward ball spawns or the score window.
+    const pausedFor = performance.now() - this.pausedAt;
+    this.startedAt += pausedFor;
+    this.scoreWindowStart += pausedFor;
+    this.paused = false;
+    this.pressed.clear();
+    this.frameId = requestAnimationFrame(this.loop);
+  }
+
   stop() {
     this.running = false;
+    this.paused = false;
     if (this.frameId !== null) {
       cancelAnimationFrame(this.frameId);
       this.frameId = null;
@@ -92,6 +122,9 @@ export class Game {
   handleKeyDown(event) {
     if (event.key === this.config.keyLeft || event.key === this.config.keyRight) {
       event.preventDefault();
+      if (this.paused) {
+        return;
+      }
       this.pressed.add(event.key);
     }
   }
@@ -101,7 +134,7 @@ export class Game {
   }
 
   setMoving(direction, isPressed) {
-    if (!this.running) {
+    if (!this.running || this.paused) {
       return;
     }
     const key = direction === "left" ? this.config.keyLeft : this.config.keyRight;
@@ -112,8 +145,16 @@ export class Game {
     }
   }
 
+  // x is the desired paddle centre in canvas pixels (used by mouse and touch controls).
+  setPaddleTarget(x) {
+    if (!this.running || this.paused) {
+      return;
+    }
+    this.targetX = x;
+  }
+
   loop() {
-    if (!this.running) {
+    if (!this.running || this.paused) {
       return;
     }
 
@@ -182,11 +223,17 @@ export class Game {
   }
 
   movePaddle() {
+    if (this.pressed.size > 0) {
+      this.targetX = null;
+    }
     if (this.pressed.has(this.config.keyLeft)) {
       this.paddle.x -= this.config.paddleSpeed;
     }
     if (this.pressed.has(this.config.keyRight)) {
       this.paddle.x += this.config.paddleSpeed;
+    }
+    if (this.targetX !== null) {
+      this.paddle.x = this.targetX - this.paddle.width / 2;
     }
     this.paddle.x = Math.max(
       0,
