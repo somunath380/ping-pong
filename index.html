@@ -153,9 +153,9 @@
 
             <p id="overlay-best" class="best-line"></p>
 
-            <form id="name-form" class="name-form hidden">
+            <form id="name-form" class="name-form">
               <label for="player-name">
-                New high score! Enter your name
+                Your name
               </label>
 
               <div class="name-row">
@@ -168,10 +168,6 @@
                   placeholder="Your name"
                   required
                 />
-
-                <button id="save-name-btn" type="submit">
-                  Save
-                </button>
               </div>
             </form>
 
@@ -180,7 +176,8 @@
             <div class="overlay-actions">
               <button
                 id="action-btn"
-                type="button"
+                type="submit"
+                form="name-form"
               >
                 Start
               </button>

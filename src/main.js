@@ -1,9 +1,7 @@
 import { config } from "./config.js";
 import { sounds } from "./audio.js";
-import {
-  fetchHighscores,
-  submitHighscore,
-} from "./highscores.js";
+import { fetchHighscores } from "./highscores.js";
+import { ScoreSession } from "./score-session.js";
 import { ClassicGame } from "./games/classic.js";
 import { BlockBreakerGame } from "./games/block-breaker.js";
 
@@ -62,7 +60,6 @@ const actionBtn = $("#action-btn");
 const changeModeBtn = $("#change-mode-btn");
 const nameForm = $("#name-form");
 const nameInput = $("#player-name");
-const saveNameBtn = $("#save-name-btn");
 const nameStatus = $("#name-status");
 const scoreEl = $("#score");
 const bestEl = $("#best");
@@ -86,8 +83,10 @@ let highscores = null;
 let highscoresUnavailable = false;
 let currentMode = null;
 let activeGame = null;
-let pendingHighscore = null;
+let playerName = "";
 let gameOverToken = 0;
+
+const scoreSession = new ScoreSession({ onRejected: handleScoreRejected });
 
 document.documentElement.style.setProperty(
   "--game-ratio",
@@ -101,6 +100,7 @@ document.documentElement.style.setProperty(
  */
 
 function handleScore(score) {
+  scoreSession.setScore(score);
   scoreEl.textContent = `Score: ${score}`;
   scorePopEl.textContent = "+1";
   scorePopEl.classList.remove("hidden", "score-pop");
@@ -194,11 +194,8 @@ async function loadHighscores() {
  * -------------------------
  */
 
-function hideNameEntry() {
-  pendingHighscore = null;
-  nameForm.classList.add("hidden");
+function clearStatus() {
   nameStatus.classList.add("hidden");
-  saveNameBtn.disabled = false;
 }
 
 function showStatus(message) {
@@ -208,11 +205,12 @@ function showStatus(message) {
 
 function showModeSelect() {
   activeGame?.stop();
+  scoreSession.cancel();
   hidePauseUi();
   currentMode = null;
   activeGame = null;
   gameOverToken += 1;
-  hideNameEntry();
+  clearStatus();
   resetHud();
   renderHighscores();
   viewMode.classList.add("hidden");
@@ -235,7 +233,8 @@ function selectMode(mode) {
   activeGame = games[mode];
   activeGame.showIdle();
   hidePauseUi();
-  hideNameEntry();
+  clearStatus();
+  nameInput.value = localStorage.getItem(PLAYER_NAME_KEY) ?? "";
   resetHud();
   renderHighscores();
   showModeView(MODES[mode].label, MODES[mode].description, "Start");
@@ -245,8 +244,19 @@ function startGame() {
   if (!activeGame) {
     return;
   }
+
+  // The server rejects blank names or names over 20 characters, so check here first.
+  const name = nameInput.value.replace(/\s+/g, " ").trim();
+  if (!name) {
+    showStatus("Enter your name to start.");
+    nameInput.focus();
+    return;
+  }
+  playerName = name;
+  localStorage.setItem(PLAYER_NAME_KEY, name);
+
   gameOverToken += 1;
-  hideNameEntry();
+  clearStatus();
   overlay.classList.add("hidden");
   pauseScreen.classList.add("hidden");
   pauseBtn.classList.remove("hidden");
@@ -254,6 +264,9 @@ function startGame() {
   showStartBanner();
   sounds.gameStart();
   activeGame.start();
+
+  // Runs in the background; the game doesn't wait for the server.
+  scoreSession.start(currentMode, name);
 }
 
 /*
@@ -328,79 +341,69 @@ async function handleGameOver(score, level) {
     ? `Your score: ${score}. You reached level ${level}.`
     : `Your score: ${score}.`;
 
-  hideNameEntry();
+  clearStatus();
   showModeView("KHATAM TATA BYE BYE!", message, "Restart");
 
-  await loadHighscores();
+  // The server checks the final score against the updates it saw during the
+  // game and saves it only if it's this player's best.
+  let result = null;
+  let saveError = null;
+  try {
+    result = await scoreSession.end(score);
+  } catch (error) {
+    saveError = error;
+  }
 
   if (token !== gameOverToken) {
     return;
   }
 
-  if (highscoresUnavailable) {
-    if (score > 0) {
-      showStatus("Couldn't reach the high score server, so this score wasn't saved.");
+  if (!result) {
+    await loadHighscores();
+    if (token === gameOverToken && score > 0) {
+      showStatus(
+        saveError
+          ? `Couldn't save your score: ${saveError.message}`
+          : "Couldn't reach the high score server, so this score wasn't saved.",
+      );
     }
     return;
   }
 
-  const best = highscores[mode]?.score ?? 0;
+  highscores = result.highscores;
+  highscoresUnavailable = false;
+  renderHighscores();
 
-  if (score > 0 && score > best) {
-    pendingHighscore = { mode, score };
-    nameInput.value = localStorage.getItem(PLAYER_NAME_KEY) ?? "";
-    nameForm.classList.remove("hidden");
-    nameInput.focus();
-    nameInput.select();
+  if (result.newChampion) {
+    showStatus(`New high score! ${playerName} now holds the ${MODES[mode].label} record.`);
+  } else if (result.saved) {
+    showStatus(`New personal best for ${playerName}!`);
   }
 }
 
-nameForm.addEventListener("submit", async (event) => {
-  event.preventDefault();
-
-  const name = nameInput.value.trim();
-
-  if (!pendingHighscore || !name) {
+// Called when the server refuses a score update: the game is stopped and not saved.
+function handleScoreRejected(reason) {
+  if (!activeGame?.running) {
     return;
   }
+  activeGame.stop();
+  gameOverToken += 1;
+  hidePauseUi();
+  showModeView(
+    "Score rejected",
+    `The server didn't accept this game's score (${reason}), so the game was stopped and not saved.`,
+    "Restart",
+  );
+}
 
-  const { mode, score } = pendingHighscore;
-  const token = gameOverToken;
-
-  saveNameBtn.disabled = true;
-
-  try {
-    const result = await submitHighscore(mode, name, score);
-
-    if (token !== gameOverToken) {
-      return;
-    }
-
-    localStorage.setItem(PLAYER_NAME_KEY, name);
-    highscores = result.highscores;
-    highscoresUnavailable = false;
-    renderHighscores();
-    hideNameEntry();
-
-    showStatus(
-      result.updated
-        ? `Saved! ${name} now holds the ${MODES[mode].label} high score.`
-        : `Someone just beat that score. ${describeRecord(highscores[mode])}.`,
-    );
-  } catch (error) {
-    if (token !== gameOverToken) {
-      return;
-    }
-    saveNameBtn.disabled = false;
-    showStatus(`Couldn't save your score: ${error.message}`);
-  }
+nameForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  startGame();
 });
 
 for (const card of document.querySelectorAll(".mode-card")) {
   card.addEventListener("click", () => selectMode(card.dataset.mode));
 }
-
-actionBtn.addEventListener("click", startGame);
 
 changeModeBtn.addEventListener("click", showModeSelect);
 
