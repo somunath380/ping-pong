@@ -27,7 +27,7 @@ export const TIMING_TOLERANCE_SEC = 2;
  */
 export const MAX_POINTS_PER_SECOND = {
   classic: 0.5,
-  blockBreaker: 1,
+  blockBreaker: 5,
 };
 
 // Sessions with no update for this long are thrown away.
